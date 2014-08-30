@@ -1,6 +1,5 @@
-/**
- * Created by Surikat on 29.08.14.
- */
+package chapter_1
+
 object Exc1 extends App {
 
   def isSorted[A](as: Array[A], gt: (A, A) => Boolean): Boolean = {
