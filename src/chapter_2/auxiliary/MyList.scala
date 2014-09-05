@@ -63,6 +63,7 @@ object MyList {
     }
 
   def init[A](l: MyList[A]): MyList[A] = {
+    @annotation.tailrec
     def aux(aggr: MyList[A], initial: MyList[A]): MyList[A] = initial match {
       case Zero => Zero
       case Cons(_, Zero) => aggr
