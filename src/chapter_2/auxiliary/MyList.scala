@@ -62,6 +62,9 @@ object MyList {
       case Cons(h,t) => Cons(h, append(t, a2))
     }
 
+  def rappend[A](l: MyList[A], r: MyList[A]): MyList[A] =
+    foldRight(l, r)(Cons(_,_))
+
   def init[A](l: MyList[A]): MyList[A] = {
     @annotation.tailrec
     def aux(aggr: MyList[A], initial: MyList[A]): MyList[A] = initial match {
@@ -71,6 +74,43 @@ object MyList {
     }
     aux(Zero, l)
   }
+
+  def foldRight[A, B](l: MyList[A], z: B)(f: (A, B) => B): B =
+    l match {
+      case Zero => z
+      case Cons(h, t) => f(h, foldRight(t, z)(f))
+    }
+
+  def flatMap[A](l: MyList[MyList[A]]): MyList[A] = foldRight(l, MyList[A]())((r, l) => rappend(r, l))
+
+  @annotation.tailrec
+  def foldLeft[A,B](l: MyList[A], z: B)(f: (B, A) => B): B =
+    l match {
+      case Zero => z
+      case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+    }
+
+  def lsum(ints: MyList[Int]): Int = foldLeft[Int, Int](ints, 0)(_ + _)
+
+  def lproduct(doubles: MyList[Double]): Double = foldLeft[Double, Double](doubles, 1.0) (_ * _)
+
+
+
+  def reverse[A](l: MyList[A]): MyList[A] = foldLeft(l, MyList[A]())((r, l) => Cons(l, r))
+
+  def foldRightViaFoldLeft_1[A,B](l: MyList[A], z: B)(f: (A,B) => B): B =
+    foldLeft(l, (b: B) => b)((g, a) => b => g(f(a,b)))(z)
+
+  def foldLeftViaFoldRight[A,B](l: MyList[A], z: B)(f: (B,A) => B): B =
+    foldRight(l, (b :B) => b)((a, g) => b => g(f(b,a)))(z)
+
+  def length[A](l: MyList[A]): Int = {
+    foldRight(l, 0)((_, acc) => acc + 1)
+  }
+
+
+
+
 
 //  val example = Cons(1, Cons(2, Cons(3, Zero)))
 //  val example2 = MyList(1,2,3)
