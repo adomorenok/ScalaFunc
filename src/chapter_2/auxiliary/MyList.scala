@@ -22,6 +22,19 @@ object MyList {
     if (as.isEmpty) Zero
     else Cons(as.head, apply(as.tail: _*))
 
+  def head[A](l: MyList[A]): A = {
+    l match {
+      case Zero => sys.error("no head")
+      case Cons(h, t) => h
+    }
+  }
+
+  def isEmpty[A](l: MyList[A]): Boolean = l match {
+      case Zero => true
+      case Cons(h, t) => false
+    }
+
+
   def tail[A](l: MyList[A]): MyList[A] =
     l match {
       case Zero => Zero
@@ -50,6 +63,16 @@ object MyList {
     aux(0, l)
   }
 
+  def mapByOne(l: MyList[Int]): MyList[Int] = l match {
+    case Zero => l
+    case Cons(h, t) => Cons(h + 1, mapByOne(t))
+  }
+
+  def mapByString(l: MyList[Double]): MyList[String] = l match {
+    case Zero => MyList[String]()
+    case Cons(h, t) => Cons(h.toString, mapByString(t))
+  }
+
   def setHead[A](l: MyList[A], h: A): MyList[A] =
     l match {
       case Zero => Zero
@@ -75,13 +98,25 @@ object MyList {
     aux(Zero, l)
   }
 
+  def map[A,B](l: MyList[A])(f: A => B): MyList[B] =
+    foldRight(l, MyList[B]())((lf, rt) => Cons(f(lf), rt))
+
+  def flatMap[A,B](l: MyList[A])(f: A => MyList[B]): MyList[B] =
+    flatten(map(l)(f))
+
+  def filterViaFlatMap[A](l: MyList[A])(f: A => Boolean): MyList[A] =
+    flatMap(l)((a) => if(f(a)) MyList(a) else Zero)
+
+  def filter[A](l: MyList[A])(f: A => Boolean): MyList[A] =
+    foldRight(l, MyList[A]())((h, t) => if(f(h)) Cons(h, t) else t)
+
   def foldRight[A, B](l: MyList[A], z: B)(f: (A, B) => B): B =
     l match {
       case Zero => z
       case Cons(h, t) => f(h, foldRight(t, z)(f))
     }
 
-  def flatMap[A](l: MyList[MyList[A]]): MyList[A] = foldRight(l, MyList[A]())((r, l) => rappend(r, l))
+  def flatten[A](l: MyList[MyList[A]]): MyList[A] = foldRight(l, MyList[A]())((r, l) => rappend(r, l))
 
   @annotation.tailrec
   def foldLeft[A,B](l: MyList[A], z: B)(f: (B, A) => B): B =
@@ -93,8 +128,6 @@ object MyList {
   def lsum(ints: MyList[Int]): Int = foldLeft[Int, Int](ints, 0)(_ + _)
 
   def lproduct(doubles: MyList[Double]): Double = foldLeft[Double, Double](doubles, 1.0) (_ * _)
-
-
 
   def reverse[A](l: MyList[A]): MyList[A] = foldLeft(l, MyList[A]())((r, l) => Cons(l, r))
 
@@ -108,9 +141,42 @@ object MyList {
     foldRight(l, 0)((_, acc) => acc + 1)
   }
 
+  def zipPlus[Int](l: MyList[Int], r: MyList[Int]): MyList[Int] = (l,r) match {
+    case (_, Zero) => Zero
+    case(Zero, _) => Zero
+    case (Cons(h1, t1), Cons(h2, t2)) => Cons((h1 + h2), zipPlus(t1, t2))
+  }
 
+  def zipWith[A,B,C](a: MyList[A], b: MyList[B])(f: (A,B) => C): MyList[C] = (a,b) match {
+    case (Zero, _) => Zero
+    case (_, Zero) => Zero
+    case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1,h2), zipWith(t1,t2)(f))
+  }
 
+  @annotation.tailrec
+  def hasSubsequence[A](l: MyList[A], sub: MyList[A]): Boolean = {
+    // if subsequence is empty
+    if(isEmpty(sub)) return false
 
+    //head of subsequence structure
+    val hd = head(sub)
+
+    //checking sequences equality
+    //note: sequences are considered to be equal, if
+    @annotation.tailrec
+    def eqCheck(a: MyList[A], b: MyList[A]): Boolean = (a, b) match {
+      case (_, Zero) => true
+      case (Zero, _) => false
+      case (Cons(h1, t1), Cons(h2, t2)) => if(h1 == h2) eqCheck(t1, t2) else false
+    }
+
+    dropWhile(l)(_ == hd) match {
+      case Zero => false
+      case Cons(h, t) => {
+        if(eqCheck(Cons(hd, Cons(h, t)), sub)) true else hasSubsequence(t, sub)
+      }
+    }
+  }
 
 //  val example = Cons(1, Cons(2, Cons(3, Zero)))
 //  val example2 = MyList(1,2,3)

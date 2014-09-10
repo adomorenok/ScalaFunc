@@ -7,6 +7,7 @@ object Exc2 extends App {
 
   val x = MyList(1, 2, 3, 4, 5)
   val y = MyList(MyList(1, 2, 3), MyList(4, 5, 6))
+  val z = MyList(1.0, 2.0, 3.0, 4.0, 5.0)
   print(" TAIL ")
   println(MyList.tail(x))
   print(" DROP ")
@@ -26,6 +27,16 @@ object Exc2 extends App {
   println(MyList.lproduct(MyList(1.0, 2.0, 3.0)))
   print(" REVERSE ")
   println(MyList.reverse(x))
-  print(" FLAT MAP ")
-  println(MyList.flatMap(y))
+  print(" FLATTEN ")
+  println(MyList.flatten(y))
+  print(" MAP BY ONE ")
+  println(MyList.mapByOne(x))
+  print(" MAP BY STRING ")
+  println(MyList.mapByString(z))
+  print(" MAP ")
+  println(MyList.map(x)(_ * 100))
+  print(" HAS SUBSEQUENCE ")
+  println( MyList.hasSubsequence(x, MyList(1, 2, 3, 4, 5)))
+  println( MyList.hasSubsequence(x, MyList(3, 4)))
+
 }
