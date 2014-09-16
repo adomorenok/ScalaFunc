@@ -141,11 +141,11 @@ object MyList {
     foldRight(l, 0)((_, acc) => acc + 1)
   }
 
-  def zipPlus[Int](l: MyList[Int], r: MyList[Int]): MyList[Int] = (l,r) match {
-    case (_, Zero) => Zero
-    case(Zero, _) => Zero
-    case (Cons(h1, t1), Cons(h2, t2)) => Cons((h1 + h2), zipPlus(t1, t2))
-  }
+//  def zipPlus[Int](l: MyList[Int], r: MyList[Int]): MyList[Int] = (l,r) match {
+//    case (_, Zero) => Zero
+//    case(Zero, _) => Zero
+//    case (Cons(h1, t1), Cons(h2, t2)) => Cons((h1 + h2), zipPlus(t1, t2))
+//  }
 
   def zipWith[A,B,C](a: MyList[A], b: MyList[B])(f: (A,B) => C): MyList[C] = (a,b) match {
     case (Zero, _) => Zero
