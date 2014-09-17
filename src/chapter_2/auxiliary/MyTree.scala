@@ -46,6 +46,6 @@ object MyTree {
     fold(t)(a => 0)((d1,d2) => 1 + (d1 max d2))
 
   def mapViaFold[A,B](t: MyTree[A])(f: A => B): MyTree[B] =
-    fold(t)(a => Leaf(f(a)): MyTree[B])(Branch(_,_))
+    fold(t)(a => MyLeaf(f(a)): MyTree[B])(MyBranch(_,_))
 
 }
