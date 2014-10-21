@@ -1,11 +1,23 @@
 package chapter_2
 
-import chapter_2.auxiliary.{MyLeaf, MyTree}
+import chapter_3.auxiliary._
 
-/**
- * Created by Anton.Nekrasov
- * 9/15/2014 18:08
- */
 object Exc3 extends App {
-//  val x = MyTree(MyLeaf(3), MyLeaf(1))
+
+  def mkName(name: String): MyEither[String, Name] =
+    if (name == "" || name == null) MyLeft("Name is empty.") else MyRight(new Name(name))
+
+  def mkAge(age: Int): MyEither[String, Age] =
+    if (age < 0) MyLeft("Age is out of range.") else MyRight(new Age(age))
+
+  def mkPerson(name: String, age: Int): MyEither[String, Person] =
+    mkName(name).map2(mkAge(age))(Person(_, _))
+
+  println(mkPerson("John", 31))
+
 }
+
+case class Person(name: Name, age: Age)
+sealed class Name(val value: String)
+sealed class Age(val value: Int)
+
