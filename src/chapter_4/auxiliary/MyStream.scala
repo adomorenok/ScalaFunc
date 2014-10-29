@@ -102,8 +102,79 @@ sealed trait MyStream[+A] { self =>
   def flatMap[B](f: A => MyStream[B]): MyStream[B] =
     foldRight(MyStream.empty[B])((h, t) => f(h) append t)
 
-//  def mapUnf
+  def mapUnf[B](f: A => B): MyStream[B] =
+    MyStream.unfold(self) ( x => {
+      x.uncons match {
+        case Some((h, t)) => Some((f(h), t))
+        case _ => None
+      }
+    })
 
+  def takeUnf(n: Int): MyStream[A] =
+    MyStream.unfold((self, 0)) {
+      case (a, b) => if(b < n) a.uncons match {
+        case Some((h, t)) => Some((h, (t, b + 1)))
+        case _ => None
+      } else None
+    }
+
+  def takeWhileUnf(f: A => Boolean): MyStream[A] =
+    MyStream.unfold(self) ( x => {
+      x.uncons match {
+        case Some((h, t)) => if(f(h)) Some((h, t)) else None
+        case _ => None
+      }
+    })
+
+  def zipWith[B, C](s2: MyStream[B])(f: (A, B) => C): MyStream[C] =
+    MyStream.unfold((self, s2)) {
+      case (a: MyStream[A], b: MyStream[B]) =>
+        a.uncons match {
+          case Some((ha, ta)) => b.uncons match {
+            case Some((hb, tb)) => Some((f(ha, hb), (ta, tb)))
+            case _ => None
+          }
+          case _ => None
+        }
+    }
+
+  def zip[B](s2: MyStream[B]): MyStream[(A,B)] =
+    zipWith(s2)((_,_))
+
+  def zipWithAll[B, C](s2: MyStream[B])(f: (Option[A], Option[B]) => C): MyStream[C] =
+    MyStream.unfold((self, s2)) {
+      case (a: MyStream[A], b: MyStream[B]) =>
+        a.uncons match {
+          case Some((ha, ta)) => b.uncons match {
+            case Some((hb, tb)) => Some((f(Some(ha), Some(hb)), (ta, tb)))
+            case _ => Some((f(Some(ha), None), (ta, MyStream.empty)))
+          }
+          case _ => b.uncons match {
+            case Some((hb, tb)) => Some((f(None, Some(hb)), (MyStream.empty, tb)))
+            case _ => None
+          }
+        }
+    }
+
+  def zipAll[B](s2: MyStream[B]): MyStream[(Option[A],Option[B])] =
+    zipWithAll(s2)((_,_))
+
+  def tails: MyStream[MyStream[A]] =
+    MyStream.unfold(self)( x => {
+      x.uncons match {
+        case Some((h, t)) => Some((MyStream.cons(h, t), t))
+        case _ => None
+      }
+    }).append(MyStream.empty)
+
+  def hasSubsequence[A](s: MyStream[A]): Boolean =
+    tails exists (x => MyStream.startsWith(x, s))
+
+  def scanRight[B](z: B)(f: (A,=>B) => B): MyStream[B] =
+    foldRight((z, MyStream(z)))((a,p) => {
+      val b2 = f(a,p._1)
+      (b2, MyStream.cons(b2, p._2))
+    })._2
 }
 
 object MyStream {
@@ -149,5 +220,10 @@ object MyStream {
     unfold(n)((x) => Some((x, x)))
 
   def onesUnf: MyStream[Int] = unfold(1)(x => Some((1, 1)))
+
+  def startsWith[A](s1: MyStream[A], s2: MyStream[A]): Boolean =
+    s1.zipWithAll(s2)(_ == _).forAll(_ != false)
+
+
 
 }

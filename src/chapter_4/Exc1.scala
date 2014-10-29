@@ -7,14 +7,19 @@ object Exc1 extends App {
 
   ms.cons(1, ms(1, ms.empty))
   pair {println("hello"); 41 + 1}
-
   val x = ms(1, 3, 4, 6)
+
+
   print(" TO LIST ")
   println(x.toList)
   print(" TAKE ")
   println(x.take(2).toList)
+  print(" TAKE VIA UNFOLD ")
+  println(x.takeUnf(2).toList)
   print(" TAKE WHILE ")
   println(x.takeWhile(_ < 4 ).toList)
+  print(" TAKE WHILE VIA UNFOLD ")
+  println(x.takeWhileUnf(_ < 4).toList)
   print(" EXISTS ")
   println(x.exists(_ == 3))
   print(" TAKE WHILE THROUGH FOLD RIGHT ")
@@ -41,6 +46,22 @@ object Exc1 extends App {
   val cstUnf = ms.constantUnf(3)
   print(" INFINITE STREAM CONSTANT 3 TAKE 8 ")
   println(cstUnf.take(8).toList)
+
+  print(" MAP VIA UNFOLD ")
+  println(x.mapUnf(_ * 100).toList)
+
+  print(" ZIP WITH ")
+  println(x.zipWith(ms(2, 4))(_ + _).toList)
+
+  print(" ZIP ALL ")
+  println(x.zipWithAll(ms(1, 3))((x, y) => (x.getOrElse(0) == y.getOrElse(0))).toList)
+
+  print(" STARTS WITH ")
+  println(ms.startsWith(x, ms(1,3,4,5)))
+
+  print(" TAIL ")
+  println(x.tails.toList.map(_.toList))
+
 
 
 }
