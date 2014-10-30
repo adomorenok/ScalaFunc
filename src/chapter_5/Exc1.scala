@@ -1,6 +1,6 @@
 package chapter_5
 
-import chapter_5.auxiliary.RND
+import chapter_5.auxiliary.{State, RND}
 
 object Exc1 extends App {
   val simple = RND.simple(4L)
@@ -16,4 +16,7 @@ object Exc1 extends App {
   println(RND.int(simple))
   print(" UNIT ")
   println(RND.unit(3)(simple))
+  print(" STATE UNIT ")
+  println(State.unit(3))
+
 }
